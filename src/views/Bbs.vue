@@ -38,8 +38,7 @@
           <div><pre>{{ comment.content }}</pre></div>
         </div>
       </div>
-    </div>
-    <div class="post-comment">
+      <div class="post-comment">
       <div class="comment-name">
         <label for="comment-name-field">名前: </label>
         <div><input type="text" id="comment-name-field" v-model="commentName"></div>
@@ -48,15 +47,16 @@
         <label for="comment-content-field">コメント: </label>
         <div><textarea id="comment-content-field" cols="30" rows="5" v-model="commentContent"></textarea></div>
       </div>
-      <button type="button">コメント投稿</button>
+      <button type="button" v-on:click="addComment(article.id)">コメント投稿</button>
+    </div>
     </div>
     <hr>
-    <!--///////////////////////////////// ここから削除関係/////////////////// -->
   </div>
 </template>
 
 <script lang="ts">
 import { Article } from "@/types/article";
+import { Comment } from "@/types/comment";
 import { Component, Vue } from "vue-property-decorator";
 @Component
 export default class Bbs extends Vue {
@@ -93,6 +93,18 @@ export default class Bbs extends Vue {
     this.articleContent = "";
   }
 
+  /**
+   * コメントを追加する.
+   * @param articleId - 記事のid
+   */
+  addComment(articleId: number): void{
+    this.$store.commit("addComment", {
+      article: new Comment(-1, this.commentName, this.commentContent, articleId)
+    });
+
+    this.commentName = "";
+    this.commentContent = "";
+  }
   
 }
 </script>
