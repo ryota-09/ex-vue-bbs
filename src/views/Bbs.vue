@@ -18,6 +18,7 @@ export default class Bbs extends Vue {
   created(): void{
     this.currentArticleList = this.$store.getters.getArticles;
   }
+
 }
 </script>
 
