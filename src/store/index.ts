@@ -28,7 +28,7 @@ export default new Vuex.Store({
      * @param payload - ペイロード
      */
     addArticle(state, payload){
-      state.articles.unshift(payload);
+      state.articles.unshift(payload.article);
     }
   },
   modules: {
