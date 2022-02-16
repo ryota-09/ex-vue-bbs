@@ -38,8 +38,8 @@ export default new Vuex.Store({
     addComment(state, payload){
       let newComment = new Comment(0, "", "", 0);
       for(const article of state.articles){
-        if( article.id === payload.article.articleId){
-          newComment = payload.article
+        if( article.id === payload.comment.articleId){
+          newComment = payload.comment
           article.commentList.push(newComment);
         }
       }

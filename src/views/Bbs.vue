@@ -1,5 +1,6 @@
 <template>
   <div class="bbs">
+    <h1 class="title">掲示板アプリ</h1>
     <div class="postarea">
       <div class="post-name">
         <label for="post-name">投稿者名: </label>
@@ -16,55 +17,43 @@
         <div class="post-button">
           <button type="button" v-on:click="addArticle">記事投稿</button>
         </div>
-        <hr />
       </div>
     </div>
+    <hr />
     <!--///////////////////////////////// ここからタイムライン関係/////////////////// -->
-    <div class="article-list"></div>
-    <div
-      class="article"
-      v-for="(article, i) of currentArticleList"
-      v-bind:key="article.id"
-    >
-      <div class="article-name">投稿者名: {{ article.name }}</div>
-      <div class="article-content">
-        <span>投稿内容: </span>
-        <pre>{{ article.content }}</pre>
-      </div>
-      <div class="delete-button">
-        <button type="button" v-on:click="deleteArticle(i)">記事削除</button>
-      </div>
-      <div class="article-commentlist">
-        <div v-for="comment of article.commentList" v-bind:key="comment.id">
-          <span>コメント者: {{ comment.name }}</span>
-          <div>コメント内容:</div>
-          <div>
-            <pre>{{ comment.content }}</pre>
+    <div class="article-list">
+      <div
+        class="article"
+        v-for="(article, index) of currentArticleList"
+        v-bind:key="article.id"
+      >
+        <div class="article-conteiner">
+          <div class="article-name">投稿者名: {{ article.name }}</div>
+          <div class="article-content">
+            <span>投稿内容: </span>
+            <pre class="article-content-area">{{ article.content }}</pre>
+          </div>
+          <div class="delete-button">
+            <button type="button" v-on:click="deleteArticle(index)">
+              記事削除
+            </button>
           </div>
         </div>
-      </div>
-      <div class="post-comment">
-        <div class="comment-name">
-          <label for="comment-name-field">名前: </label>
-          <div>
-            <input type="text" id="comment-name-field" v-model="commentName" />
+        <div class="article-commentlist">
+          <div
+            class="article-comment"
+            v-for="comment of article.commentList"
+            v-bind:key="comment.id"
+          >
+            <span>コメント者: {{ comment.name }}</span>
+            <div>コメント内容:</div>
+            <div>
+              <pre class="comment-content-area">{{ comment.content }}</pre>
+            </div>
           </div>
         </div>
-        <div class="comment-content">
-          <label for="comment-content-field">コメント: </label>
-          <div>
-            <textarea
-              id="comment-content-field"
-              cols="30"
-              rows="5"
-              v-model="commentContent"
-            ></textarea>
-          </div>
-        </div>
-        <button type="button" v-on:click="addComment(article.id)">
-          コメント投稿
-        </button>
-        <hr />
+        <!-- /////////////////////コメント投稿部分//////////////////////// -->
+        <CompPostComment v-bind:comment-name="commentName" v-bind:comment-content="commentContent" v-bind:article-id="article.id" v-on:on-click="addComment"></CompPostComment>
       </div>
     </div>
   </div>
@@ -74,7 +63,12 @@
 import { Article } from "@/types/article";
 import { Comment } from "@/types/comment";
 import { Component, Vue } from "vue-property-decorator";
-@Component
+import CompPostComment from "@/components/CompPostComment.vue";
+@Component({
+  components: {
+    CompPostComment
+  }
+})
 export default class Bbs extends Vue {
   //現在の記事一覧
   private currentArticleList = new Array<Article>();
@@ -113,12 +107,12 @@ export default class Bbs extends Vue {
    * コメントを追加する.
    * @param articleId - 記事のid
    */
-  addComment(articleId: number): void {
+  addComment(articleId: number, commentName: string, commentContent: string): void {
     this.$store.commit("addComment", {
-      article: new Comment(
+      comment: new Comment(
         -1,
-        this.commentName,
-        this.commentContent,
+        commentName,
+        commentContent,
         articleId
       ),
     });
@@ -130,7 +124,6 @@ export default class Bbs extends Vue {
    * @params articleIndex - 現在のcurrentArticleList配列のインデックス番号
    */
   deleteArticle(articleIndex: number): void {
-    console.log(articleIndex);
     this.$store.commit("deleteArticle", {
       articleIndex: articleIndex,
     });
@@ -140,9 +133,53 @@ export default class Bbs extends Vue {
 
 <style scoped>
 .bbs {
+  padding: 20px 150px;
+  margin: 0 auto;
   text-align: left;
+  font-size: 15px;
+}
+.title {
+  text-align: center;
+  border-top: 2px solid rgb(143, 199, 143);
+  border-bottom: 2px solid rgb(143, 199, 143);
+  font-weight: 900;
+  font-size: 40px;
+}
+.postarea {
+  margin: 10px 0;
+  padding: 0 20%;
+  background-color: lightyellow;
+}
+.post-button {
+  text-align: right;
+  margin: 5px 5px;
+  padding: 10px 0;
 }
 .post-name {
+  padding: 10px 0;
   margin: 5px 0;
+}
+.article {
+  margin: 10px 0;
+  padding: 10px 20%;
+  background-color: beige;
+}
+.article-conteiner {
+  padding: 5px;
+  background-color: blanchedalmond;
+}
+.article-content-area {
+  text-align: center;
+  padding: 50px 0;
+}
+.delete-button {
+  text-align: right;
+  padding: 0;
+  margin: 10px;
+}
+.article-comment {
+  padding: 5px;
+  margin: 20px;
+  background-color: lightyellow;
 }
 </style>
