@@ -1,4 +1,4 @@
-import {} from "@/types/comment";
+import { Comment } from "@/types/comment";
 /**
  * 記事を表すクラス.
  */
