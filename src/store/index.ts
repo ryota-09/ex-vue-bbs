@@ -43,7 +43,14 @@ export default new Vuex.Store({
           article.commentList.push(newComment);
         }
       }
-      console.log(newComment);
+    },
+    /**
+     * 記事を削除する.
+     * @param state - ステイト
+     * @param payload - ペイロード
+     */
+    deleteArticle(state, payload){
+      state.articles.splice(payload.articleIndex, 1);
     }
   },
   modules: {

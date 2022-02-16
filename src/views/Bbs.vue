@@ -23,7 +23,7 @@
     <div class="article-list"></div>
     <div
       class="article"
-      v-for="article of currentArticleList"
+      v-for="(article, i) of currentArticleList"
       v-bind:key="article.id"
     >
       <div class="article-name">投稿者名: {{ article.name }}</div>
@@ -31,26 +31,42 @@
         <span>投稿内容: </span>
         <pre>{{ article.content }}</pre>
       </div>
+      <div class="delete-button">
+        <button type="button" v-on:click="deleteArticle(i)">記事削除</button>
+      </div>
       <div class="article-commentlist">
         <div v-for="comment of article.commentList" v-bind:key="comment.id">
-          <span>コメント者:  {{ comment.name}}</span>
-          <div>コメント内容: </div>
-          <div><pre>{{ comment.content }}</pre></div>
+          <span>コメント者: {{ comment.name }}</span>
+          <div>コメント内容:</div>
+          <div>
+            <pre>{{ comment.content }}</pre>
+          </div>
         </div>
       </div>
       <div class="post-comment">
-      <div class="comment-name">
-        <label for="comment-name-field">名前: </label>
-        <div><input type="text" id="comment-name-field" v-model="commentName"></div>
+        <div class="comment-name">
+          <label for="comment-name-field">名前: </label>
+          <div>
+            <input type="text" id="comment-name-field" v-model="commentName" />
+          </div>
+        </div>
+        <div class="comment-content">
+          <label for="comment-content-field">コメント: </label>
+          <div>
+            <textarea
+              id="comment-content-field"
+              cols="30"
+              rows="5"
+              v-model="commentContent"
+            ></textarea>
+          </div>
+        </div>
+        <button type="button" v-on:click="addComment(article.id)">
+          コメント投稿
+        </button>
+        <hr />
       </div>
-      <div class="comment-content">
-        <label for="comment-content-field">コメント: </label>
-        <div><textarea id="comment-content-field" cols="30" rows="5" v-model="commentContent"></textarea></div>
-      </div>
-      <button type="button" v-on:click="addComment(article.id)">コメント投稿</button>
     </div>
-    </div>
-    <hr>
   </div>
 </template>
 
@@ -97,15 +113,28 @@ export default class Bbs extends Vue {
    * コメントを追加する.
    * @param articleId - 記事のid
    */
-  addComment(articleId: number): void{
+  addComment(articleId: number): void {
     this.$store.commit("addComment", {
-      article: new Comment(-1, this.commentName, this.commentContent, articleId)
+      article: new Comment(
+        -1,
+        this.commentName,
+        this.commentContent,
+        articleId
+      ),
     });
-
     this.commentName = "";
     this.commentContent = "";
   }
-  
+  /**
+   * 記事を削除する.
+   * @params articleIndex - 現在のcurrentArticleList配列のインデックス番号
+   */
+  deleteArticle(articleIndex: number): void {
+    console.log(articleIndex);
+    this.$store.commit("deleteArticle", {
+      articleIndex: articleIndex,
+    });
+  }
 }
 </script>
 
