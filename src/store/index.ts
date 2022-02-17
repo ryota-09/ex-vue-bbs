@@ -18,6 +18,7 @@ export default new Vuex.Store({
         new Comment(11, "吉田", "吉田さんのコメント", 1),
       ]),
     ],
+    errorMessage: "",
   },
   actions: {
   },
@@ -51,6 +52,12 @@ export default new Vuex.Store({
      */
     deleteArticle(state, payload){
       state.articles.splice(payload.articleIndex, 1);
+    },
+    /**
+     * エラーメッセージを変更する.
+     */
+    changeErrorMessage(state, payload){
+      state.errorMessage = payload.errorMessage;
     }
   },
   modules: {
@@ -63,6 +70,13 @@ export default new Vuex.Store({
      */
     getArticles(state){
       return state.articles;
+    },
+    /**
+     * エラーメッセージを取得するgetter.
+     * @params state - ステイト
+     */
+    getErrorMessage(state){
+      return state.errorMessage;
     }
   }
 })

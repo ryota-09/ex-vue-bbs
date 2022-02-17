@@ -17,6 +17,7 @@
         <div class="post-button">
           <button type="button" v-on:click="addArticle">記事投稿</button>
         </div>
+        <div class="error-message" v-show="canShow">{{ getErrorMessage }}</div>
       </div>
     </div>
     <hr />
@@ -53,7 +54,12 @@
           </div>
         </div>
         <!-- /////////////////////コメント投稿部分//////////////////////// -->
-        <CompPostComment v-bind:comment-name="commentName" v-bind:comment-content="commentContent" v-bind:article-id="article.id" v-on:on-click="addComment"></CompPostComment>
+        <CompPostComment
+          v-bind:comment-name="commentName"
+          v-bind:comment-content="commentContent"
+          v-bind:article-id="article.id"
+          v-on:on-click="addComment"
+        ></CompPostComment>
       </div>
     </div>
   </div>
@@ -66,8 +72,8 @@ import { Component, Vue } from "vue-property-decorator";
 import CompPostComment from "@/components/CompPostComment.vue";
 @Component({
   components: {
-    CompPostComment
-  }
+    CompPostComment,
+  },
 })
 export default class Bbs extends Vue {
   //現在の記事一覧
@@ -80,6 +86,9 @@ export default class Bbs extends Vue {
   private commentName = "";
   //コメント内容
   private commentContent = "";
+  //エラーメッセージ表示させるかどうか
+  private canShow = false;
+
   /**
    * 記事一覧を表示する.
    * @remarks Vuexストア内の記事一覧をcurrentArticleListに格納する
@@ -91,6 +100,13 @@ export default class Bbs extends Vue {
    * 記事を追加する.
    */
   addArticle(): void {
+    this.canShow = false;
+    this.validateName(this.articleName);
+    this.validateEmptyContent(this.articleContent);
+    if (this.canShow) {
+      return;
+    }
+
     let newId = 0;
     if (this.$store.getters.getArticles) {
       newId = this.$store.getters.getArticles[0].id + 1;
@@ -99,6 +115,7 @@ export default class Bbs extends Vue {
       article: new Article(newId, this.articleName, this.articleContent, []),
     });
 
+    this.canShow = false;
     this.articleName = "";
     this.articleContent = "";
   }
@@ -107,15 +124,15 @@ export default class Bbs extends Vue {
    * コメントを追加する.
    * @param articleId - 記事のid
    */
-  addComment(articleId: number, commentName: string, commentContent: string): void {
+  addComment(
+    articleId: number,
+    commentName: string,
+    commentContent: string
+  ): void {
     this.$store.commit("addComment", {
-      comment: new Comment(
-        -1,
-        commentName,
-        commentContent,
-        articleId
-      ),
+      comment: new Comment(-1, commentName, commentContent, articleId),
     });
+    this.canShow = false;
     this.commentName = "";
     this.commentContent = "";
   }
@@ -127,6 +144,44 @@ export default class Bbs extends Vue {
     this.$store.commit("deleteArticle", {
       articleIndex: articleIndex,
     });
+  }
+  /**
+   * 名前の入力フォームの検証を行うメソッド.
+   * @params formStr - フォームに入力されたテキスト
+   */
+  validateName(formStr: string): void {
+    if (formStr === "") {
+      this.$store.commit("changeErrorMessage", {
+        errorMessage: "名前を入力してください。",
+      });
+      this.canShow = true;
+      return;
+    } else if (formStr.length > 50) {
+      this.canShow = true;
+      this.$store.commit("changeErrorMessage", {
+        errorMessage: "名前は50字以内で入力してください。",
+      });
+      return;
+    }
+  }
+  /**
+   * 投稿内容とコメント欄の検証を行うメソッド.
+   * @params formStr - フォームに入力されたテキスト
+   */
+  validateEmptyContent(formStr: string): void {
+    if (formStr === "") {
+      this.canShow = true;
+      this.$store.commit("changeErrorMessage", {
+        errorMessage: "内容を入力してください。",
+      });
+      return;
+    }
+  }
+  /**
+   * エラーメッセージを取得するgetter.
+   */
+  get getErrorMessage(): string {
+    return this.$store.getters.getErrorMessage;
   }
 }
 </script>
@@ -181,5 +236,8 @@ export default class Bbs extends Vue {
   padding: 5px;
   margin: 20px;
   background-color: lightyellow;
+}
+.error-message {
+  color: red;
 }
 </style>
